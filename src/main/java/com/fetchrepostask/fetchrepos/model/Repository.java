@@ -1,9 +1,13 @@
 package com.fetchrepostask.fetchrepos.model;
 
+import java.util.List;
+import java.util.Map;
+
 public class Repository {
 
     private String name;            // repository name
     private String login;           // github user login
+    private String branches;
 
 
     public String getName() {
@@ -22,4 +26,11 @@ public class Repository {
         this.login = login;
     }
 
+    public String getBranches() {
+        return branches;
+    }
+
+    public void setBranches(String branches) {
+        this.branches = branches;
+    }
 }

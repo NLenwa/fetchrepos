@@ -1,7 +1,7 @@
 ## fetchrepos
-#Java spring boot application
+Java spring boot application
 
-#About the project:
+About the project:<br>
 Technical interview test. The overall goal is to request/fetch all non-fork repositories of a given GitHub User.<br>
 Results - list of repositories with selected information<br>
 {<br>

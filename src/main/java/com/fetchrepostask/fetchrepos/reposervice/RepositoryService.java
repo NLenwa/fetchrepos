@@ -57,8 +57,7 @@ public class RepositoryService {
             if ("application/json".equals(contentType)) {
                 System.out.println("Header is ok");
             } else if ("application/xml".equals(contentType)) {
-                String headerMessage = acceptedHeader.toString();
-                throw new HeaderExceptions(String.format("Received header content type: %s", headerMessage));
+                throw new HeaderExceptions(String.format("Received header content type: %s", contentType));
             }
 
             // List of github repositories of given user

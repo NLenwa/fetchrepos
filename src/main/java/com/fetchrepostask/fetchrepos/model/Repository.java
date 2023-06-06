@@ -1,4 +1,4 @@
-package com.fetchrepostask.fetchrepos.repos;
+package com.fetchrepostask.fetchrepos.model;
 
 public class Repository {
 

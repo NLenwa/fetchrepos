@@ -2,18 +2,17 @@ package com.fetchrepostask.fetchrepos.reposervice;
 
 
 import com.fetchrepostask.fetchrepos.authentificator.Authenticator;
+import com.fetchrepostask.fetchrepos.exceptions.UserRequestExceptions;
 import com.fetchrepostask.fetchrepos.model.Repository;
 import org.kohsuke.github.GHBranch;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -37,10 +36,19 @@ public class RepositoryService {
             String key = Authenticator.getAuthKey();
             GitHub github = GitHub.connect(login, key);
 
+            //Check if user exists
+            try {
+                GHUser githubUser = github.getUser(username);
+
+            } catch (IOException e) {
+                throw new UserRequestExceptions(String.format("No GitHub %s user was found", username));
+            }
+
+
             // List of github repositories of given user
             List<GHRepository> githubRepositories = github.getUser(username).listRepositories().toList();
 
-            int forkCount = 1; // fork count for easy console readability
+            //int forkCount = 1; // fork count for easy console readability
 
             for (GHRepository githubRepository: githubRepositories) {
 
@@ -54,12 +62,13 @@ public class RepositoryService {
 
                 // Obtain list of all branch names for given repository
                 List<GHBranch> githubRepoBranches = githubRepository.getBranches().values().stream().toList();
-                List<String> githubBranches = githubRepoBranches.stream().map(GHBranch::getName).collect(Collectors.toList());
-                System.out.println(githubBranches);
+                List<String> githubBranches = githubRepoBranches.stream().map(GHBranch::getName).toList();
+                //System.out.println(githubBranches);
 
-                String branches = new String();
+                String branches = "";
 
-                // Map branch with Sha strings
+                // Map branch with Sha strings - MAP<> and List<> resulted in null values
+                // String is used to show branch and it's SHA
                 for (String branch : githubBranches) {
                     String branchSha = githubRepository.getBranch(branch).getSHA1();
                     branches += (" " + branch + ": " + branchSha + ";");
@@ -68,11 +77,12 @@ public class RepositoryService {
 
                 // If given repository is not a fork, then add to repositories
                 if (!githubRepository.isFork()) {
-                    System.out.println(githubRepository.getName());
+                    //System.out.println(githubRepository.getName());
                     repositories.add(repository);
-                } else {
-                    System.out.println("FORK #"+forkCount);
                 }
+//                else {
+//                    System.out.println("FORK #"+forkCount);
+//                }
             }
 
         } catch (IOException e) {

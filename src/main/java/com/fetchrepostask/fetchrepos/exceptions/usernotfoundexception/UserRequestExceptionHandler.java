@@ -1,5 +1,7 @@
-package com.fetchrepostask.fetchrepos.exceptions;
+package com.fetchrepostask.fetchrepos.exceptions.usernotfoundexception;
 
+import com.fetchrepostask.fetchrepos.exceptions.usernotfoundexception.UserRequestException;
+import com.fetchrepostask.fetchrepos.exceptions.usernotfoundexception.UserRequestExceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

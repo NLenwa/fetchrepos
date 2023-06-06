@@ -2,13 +2,14 @@ package com.fetchrepostask.fetchrepos.reposervice;
 
 
 import com.fetchrepostask.fetchrepos.authentificator.Authenticator;
-import com.fetchrepostask.fetchrepos.exceptions.UserRequestExceptions;
+import com.fetchrepostask.fetchrepos.exceptions.headerexception.HeaderExceptions;
+import com.fetchrepostask.fetchrepos.exceptions.usernotfoundexception.UserRequestExceptions;
 import com.fetchrepostask.fetchrepos.model.Repository;
-import org.kohsuke.github.GHBranch;
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GHUser;
-import org.kohsuke.github.GitHub;
+import org.kohsuke.github.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,9 +19,9 @@ import java.util.List;
 @Service
 public class RepositoryService {
 
-    //private static final String GITHUB_API_URL = "https://api.github.com/users/";
+    private static final String GITHUB_API_URL = "https://api.github.com/users/";
 
-    //private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public List<Repository> getRepository(String username) {
 
@@ -36,21 +37,36 @@ public class RepositoryService {
             String key = Authenticator.getAuthKey();
             GitHub github = GitHub.connect(login, key);
 
-            //Check if user exists
+
             try {
+                //Check if user exists
                 GHUser githubUser = github.getUser(username);
 
             } catch (IOException e) {
                 throw new UserRequestExceptions(String.format("No GitHub %s user was found", username));
             }
 
+            //Check for raw response header
+            String githubUrl = GITHUB_API_URL + username + "/repos";
+
+            ResponseEntity<String> response = restTemplate.getForEntity(githubUrl, String.class);
+            HttpHeaders headers = response.getHeaders();
+            String[] acceptedHeader = headers.getFirst(HttpHeaders.CONTENT_TYPE).split(";");
+            String contentType = acceptedHeader[0];
+            System.out.println(contentType);
+            if ("application/json".equals(contentType)) {
+                System.out.println("Header is ok");
+            } else if ("application/xml".equals(contentType)) {
+                String headerMessage = acceptedHeader.toString();
+                throw new HeaderExceptions(String.format("Received header content type: %s", headerMessage));
+            }
 
             // List of github repositories of given user
             List<GHRepository> githubRepositories = github.getUser(username).listRepositories().toList();
 
             //int forkCount = 1; // fork count for easy console readability
 
-            for (GHRepository githubRepository: githubRepositories) {
+            for (GHRepository githubRepository : githubRepositories) {
 
                 Repository repository = new Repository();
 
@@ -75,21 +91,19 @@ public class RepositoryService {
                 }
                 repository.setBranches(branches);
 
-                // If given repository is not a fork, then add to repositories
-                if (!githubRepository.isFork()) {
-                    //System.out.println(githubRepository.getName());
-                    repositories.add(repository);
-                }
+                    // If given repository is not a fork, then add to repositories
+                    if (!githubRepository.isFork()) {
+                        //System.out.println(githubRepository.getName());
+                        repositories.add(repository);
+                    }
 //                else {
 //                    System.out.println("FORK #"+forkCount);
 //                }
             }
+            return repositories;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
-        return repositories;
     }
-
 }

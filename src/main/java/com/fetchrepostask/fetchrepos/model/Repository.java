@@ -2,24 +2,24 @@ package com.fetchrepostask.fetchrepos.model;
 
 public class Repository {
 
-    private String repositoryName;
-    private String userName;
+    private String name;            // repository name
+    private String login;           // github user login
 
 
-    public String getRepositoryName() {
-        return repositoryName;
+    public String getName() {
+        return name;
     }
 
-    public void setRepositoryName(String repositoryName) {
-        this.repositoryName = repositoryName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getLogin() {
+        return login;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
 }
